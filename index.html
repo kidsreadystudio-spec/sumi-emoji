@@ -281,9 +281,23 @@ const badImg=k=>IMG["bad-"+k]||ph(BAD[k][1],"","#F3EEE8",1);
 let soundOn=true,voice=null;
 function pickVoice(){try{const v=speechSynthesis.getVoices();voice=v.find(x=>/zh[-_]TW/i.test(x.lang))||v.find(x=>/zh/i.test(x.lang))||null}catch(e){}}
 try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
-function say(text,cb,min){min=min||2200;let done=false;const go=()=>{if(!done){done=true;cb&&cb()}};
+/* 蘇米配音錄音（voice.bin）：文字→錄音；找不到對應錄音才用瀏覽器朗讀 */
+const VOX={"再看看蘇米的臉。": [0, 14637], "哪一個是開心的蘇米？": [14637, 13629], "對！嘴巴彎彎笑，蘇米好開心。": [28266, 22701], "哪一個是難過的蘇米？": [50967, 16509], "對！嘴巴往下、掉眼淚，蘇米好難過。": [67476, 33645], "哪一個是生氣的蘇米？": [101121, 15501], "對！眉毛皺起來、臉鼓鼓的，蘇米好生氣。": [116622, 33213], "哪一個是害怕的蘇米？": [149835, 17661], "對！眼睛睜得大大、身體縮起來，蘇米好害怕。": [167496, 35661], "蘇米笑咪咪，哪一個是她？": [203157, 20685], "對！開心的時候，眼睛也會笑。": [223842, 22413], "蘇米在哭哭，哪一個是她？": [246255, 20253], "對！難過的時候，耳朵也垂下來了。": [266508, 27597], "蘇米氣噗噗，哪一個是她？": [294105, 19245], "對！生氣的時候，手會握成拳頭。": [313350, 26013], "蘇米嚇一跳，哪一個是她？": [339363, 19533], "對！害怕的時候，會想躲起來。": [358896, 20973], "想一想，發生了什麼事？": [379869, 15933], "冰淇淋掉在地上了，蘇米是什麼心情呢？": [395802, 28461], "對！冰淇淋掉了，蘇米好難過。": [424263, 26877], "蘇米收到生日禮物，是什麼心情呢？": [451140, 23997], "對！收到禮物，蘇米好開心。": [475137, 20253], "疊好的積木被推倒了，蘇米是什麼心情呢？": [495390, 28749], "對！積木被推倒，蘇米好生氣。": [524139, 22125], "外面轟隆轟隆打雷了，蘇米是什麼心情呢？": [546264, 31485], "對！打雷好大聲，蘇米好害怕。": [577749, 26445], "盒子一打開，跳出一隻彈簧小丑！蘇米是什麼心情呢？": [604194, 33933], "對！嘿沒想到，蘇米好驚訝。": [638127, 20541], "蘇米第一次上台唱歌，大家都看著她，是什麼心情呢？": [658668, 41277], "對！大家都看著她，蘇米好害羞。": [699945, 28461], "好朋友要搬家了，蘇米是什麼心情呢？": [728406, 24285], "對！要跟好朋友分開，蘇米好難過。": [752691, 27309], "排隊排好久，有人插隊了，蘇米是什麼心情呢？": [780000, 34365], "對！被插隊了，蘇米好生氣。": [814365, 25293], "這樣可能會讓大家更不開心，再想一想。": [839658, 29901], "積木被推倒，蘇米好生氣。怎麼做可以讓她好一點呢？": [869559, 39405], "對！吸——吐——慢慢數到五，蘇米沒那麼生氣了。": [908964, 47037], "打雷了，蘇米好害怕。怎麼做可以讓她好一點呢？": [956001, 41133], "對！說出來，媽媽抱抱，蘇米就不怕了。": [997134, 25581], "冰淇淋掉了，蘇米好難過。怎麼做可以讓她好一點呢？": [1022715, 37245], "對！抱著小兔娃娃，蘇米心裡暖暖的。": [1059960, 29037], "要上台唱歌，蘇米好害羞。怎麼做可以讓她好一點呢？": [1088997, 39261], "對！有老師陪著，蘇米慢慢敢唱了。": [1128258, 24285], "好朋友要搬家，蘇米好難過。怎麼做可以讓她好一點呢？": [1152543, 41709], "對！把想說的話畫下來，好朋友會記得蘇米。": [1194252, 30477], "有人插隊，蘇米好生氣。怎麼做可以讓她好一點呢？": [1224729, 41421], "對！用說的，不用推的，蘇米好棒！": [1266150, 22413], "蘇米拿著冰淇淋，開心地走著。": [1288563, 24141], "咚！踢到一顆小石頭。": [1312704, 16797], "冰淇淋飛出去了！": [1329501, 12765], "啪！冰淇淋掉在地上了。": [1342266, 20541], "今天是蘇米的生日。": [1362807, 17085], "媽媽拿出一個禮物給蘇米。": [1379892, 16797], "蘇米慢慢拆開緞帶……": [1396689, 19389], "哇！是蘇米最想要的小熊娃娃！": [1416078, 27741], "蘇米疊了一座好高的積木塔。": [1443819, 19965], "小熊跑過來……": [1463784, 10605], "碰！積木塔被推倒了。": [1474389, 17373], "積木散了一地。": [1491762, 10317], "晚上，蘇米準備睡覺了。": [1502079, 17805], "外面開始下大雨。": [1519884, 16509], "閃電一閃！": [1536393, 8589], "轟隆轟隆！好大聲！": [1544982, 17661], "蘇米看到一個盒子。": [1562643, 15357], "慢慢打開……": [1578000, 12045], "碰！跳出一隻彈簧小丑！": [1590045, 20109], "小丑彈來彈去。": [1610154, 13341], "今天有唱歌表演。": [1623495, 14925], "輪到蘇米上台了。": [1638420, 13341], "台下好多朋友都看著她。": [1651761, 19389], "大家都在等蘇米唱歌。": [1671150, 16797], "小熊正在把東西搬上卡車。": [1687947, 20685], "小熊坐上卡車，跟蘇米揮揮手。": [1708632, 24285], "卡車慢慢開走了。": [1732917, 17517], "卡車開得好遠好遠……": [1750434, 21981], "大家排隊等溜滑梯。": [1772415, 14061], "前面的小狗滑下去了，快輪到蘇米了。": [1786476, 23277], "小狗又跑回來，從旁邊擠過來……": [1809753, 22701], "插到蘇米前面了！": [1832454, 14493], "今天，蘇米到公園玩。": [1846947, 22413], "她手上拿著一支冰淇淋……": [1869360, 17517], "冰淇淋沒有了。": [1886877, 12477], "桌上有生日蛋糕。": [1899354, 14493], "媽媽送給蘇米一個禮物！": [1913847, 14493], "是蘇米的生日禮物！": [1928340, 17373], "嘩啦！積木塔倒下來了！": [1945713, 21405], "外面下起了大雨。": [1967118, 13197], "轟隆隆！打雷了！": [1980315, 13197], "好大的閃電和雷聲。": [1993512, 15789], "開心、難過、生氣、害怕，每一種心情都可以有喔！": [2009301, 42285], "看看發光的那一張。": [2051586, 16797]};const VURL={};const voxEl=new Audio();voxEl.preload="auto";let vTok=0;
+let VBUF=null;const VPROM=fetch("voice.bin").then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(b=>{VBUF=b}).catch(()=>{});
+function stopVoice(){vTok++;try{speechSynthesis.cancel()}catch(e){}try{voxEl.pause()}catch(e){}voxEl.onended=null}
+function recURL(text){const o=VOX[text];if(!o||!VBUF)return null;if(!VURL[text])VURL[text]=URL.createObjectURL(new Blob([new Uint8Array(VBUF,o[0],o[1])],{type:"audio/mpeg"}));return VURL[text]}
+/* 播錄音：播完呼叫 onEnd；不能播就呼叫 onFail（改用機器聲） */
+function playRec(text,onEnd,onFail){stopVoice();const tok=vTok;const go=()=>{if(tok!==vTok)return;const u=recURL(text);if(!u){onFail();return}
+  voxEl.onended=()=>{if(tok===vTok)onEnd()};voxEl.src=u;voxEl.currentTime=0;
+  const p=voxEl.play();if(p&&p.catch)p.catch(er=>{if(er&&er.name==="AbortError")return;if(tok===vTok)onFail()})};
+  if(VBUF)go();else VPROM.then(go)}
+addEventListener("pointerdown",function unlockVox(){removeEventListener("pointerdown",unlockVox,true);try{if(!voxEl.src){voxEl.src="data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//OEwAAAAAAAAAAAAEluZm8AAAAPAAAABwAAA2AAVVVVVVVVVVVVVVVVVVVxcXFxcXFxcXFxcXFxcY6Ojo6Ojo6Ojo6Ojo6Oqqqqqqqqqqqqqqqqqqqqx8fHx8fHx8fHx8fHx8fj4+Pj4+Pj4+Pj4+Pj4///////////////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQEIAAAAAAAAANgmVBi7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//NExAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExFMAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKYAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKwAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTMu//NExKwAAANIAAAAADEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NExKwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV";const p=voxEl.play();if(p&&p.then)p.then(()=>voxEl.pause()).catch(()=>{});}}catch(e){}},true);
+function ttsSay(text,cb,min){min=min||2200;let done=false;const go=()=>{if(!done){done=true;cb&&cb()}};
   setTimeout(go,soundOn?Math.max(min,text.length*260):min);
   if(!soundOn)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="zh-TW";if(voice)u.voice=voice;u.rate=.9;u.pitch=1.3;u.onend=()=>setTimeout(go,500);speechSynthesis.speak(u)}catch(e){}}
+function say(text,cb,min){if(!soundOn||!VOX[text])return ttsSay(text,cb,min);min=min||2200;let done=false;const t0=performance.now();
+  const go=()=>{if(!done){done=true;cb&&cb()}};setTimeout(go,Math.max(min,25000));
+  playRec(text,()=>{const left=Math.max(0,min-(performance.now()-t0));setTimeout(go,Math.max(500,left))},()=>{if(!done){done=true;ttsSay(text,cb,min)}})}
 
 
 /* 效果音（瀏覽器即時合成，不用音檔） */
@@ -369,9 +383,12 @@ function emoFx(k){
   fxRAF=requestAnimationFrame(frame)}
 
 /* 動畫每格的節奏：念完就換下一張（最多等 字數×0.19 秒），第一張不再多停 */
-function sayFrame(text,cb,first){let done=false;const go=()=>{if(!done){done=true;cb()}};
+function ttsFrame(text,cb,first){let done=false;const go=()=>{if(!done){done=true;cb()}};
   const cap=Math.max(first?1400:1500,text.length*(first?170:190));setTimeout(go,cap);
   if(!soundOn)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="zh-TW";if(voice)u.voice=voice;u.rate=.95;u.pitch=1.3;u.onend=()=>setTimeout(go,250);speechSynthesis.speak(u)}catch(e){}}
+function sayFrame(text,cb,first){if(!soundOn||!VOX[text])return ttsFrame(text,cb,first);let done=false;const t0=performance.now(),min=first?1400:1500;
+  const go=()=>{if(!done){done=true;cb()}};setTimeout(go,25000);
+  playRec(text,()=>{const left=Math.max(0,min-(performance.now()-t0));setTimeout(go,Math.max(250,left))},()=>{if(!done){done=true;ttsFrame(text,cb,first)}})}
 /* ---------- 遊戲 ---------- */
 const X=[3,35,67];
 let L=0,q=0,miss=0,locked=false,run=0;
@@ -471,8 +488,8 @@ $("nextLv").onclick=()=>{if(L<LEVELS.length-1)start(L+1);else{$("end").hidden=tr
 $("again").onclick=()=>start(L);
 $("replay").onclick=()=>{if(!locked)playAnim()};
 document.querySelectorAll("[data-lv]").forEach(b=>b.onclick=()=>start(+b.dataset.lv));
-$("back").onclick=()=>{run++;try{speechSynthesis.cancel()}catch(e){}$("end").hidden=true;$("menu").hidden=false};
-$("sound").onclick=()=>{soundOn=!soundOn;$("mute").hidden=soundOn;if(!soundOn)try{speechSynthesis.cancel()}catch(e){}};
+$("back").onclick=()=>{run++;stopVoice();$("end").hidden=true;$("menu").hidden=false};
+$("sound").onclick=()=>{soundOn=!soundOn;$("mute").hidden=soundOn;if(!soundOn)stopVoice();};
 document.documentElement.style.setProperty("--bgimg",`url(${IMG.bg})`);
 $("logoImg").src=LOGO;$("peek").src=IMG["sumi-idle"];document.documentElement.style.setProperty("--menuimg",`url(${IMG.menu})`);
 /* 品牌片頭：點兩下跳過 */
